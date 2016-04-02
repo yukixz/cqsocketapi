@@ -11,20 +11,40 @@ Server and client communicate by send UDP frame to each others. Fields are joine
 
 The server port is 11231 and client is 11232.
 
-### Frame
+### Server Sent Frame
 ```
 Frame = Prefix (max 256) + Payload (max 32768)
-Prefix = 'PrivateMessage' | 'GroupMessage' | 'DiscussMessage'
 
-Received Message Payload:
-PrivateMessage = QQ + encoded_text
-GroupMessage = GroupID + QQ + encoded_text
-GroupMessage = DiscussID + QQ + encoded_text
+Prefix = 'PrivateMessage'
+Payload = QQ + EncodedText
 
-Send Message Payload:
-PrivateMessage = QQ + encoded_text
-GroupMessage = GroupID + encoded_text
-GroupMessage = DiscussID + encoded_text
+Prefix = 'GroupMessage'
+Payload = GroupID + QQ + EncodedText
 
-encoded_text = base64_encode( GBK_encode( text ) )
+Prefix = 'DiscussMessage'
+Payload = DiscussID + QQ + EncodedText
+
+Prefix = 'GroupMemberDecrease'
+Payload = GroupID + QQ + OperatedQQ
+
+Prefix = 'GroupMemberIncrease'
+Payload = GroupID + QQ + OperatedQQ
+
+EncodedText = base64_encode( GBK_encode( text ) )
+```
+
+### Client Sent Frame
+```
+Frame = Prefix (max 256) + Payload (max 32768)
+
+Prefix = 'PrivateMessage'
+Payload = QQ + EncodedText
+
+Prefix = 'GroupMessage'
+Payload = GroupID + EncodedText
+
+Prefix = 'DiscussMessage'
+Payload = DiscussID + EncodedText
+
+EncodedText = base64_encode( GBK_encode( text ) )
 ```
