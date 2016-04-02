@@ -1,6 +1,9 @@
 # CQSocketAPI
 CoolQ Socket API written in VC++.
 
+## QQBot
+You can use my [cqbot](https://github.com/yukixz/cqbot) written in python 3.
+
 ## Protocol
 
 ### Communication
