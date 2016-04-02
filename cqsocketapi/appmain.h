@@ -1,0 +1,12 @@
+#pragma once
+
+// CoolQ
+#define CQAPPID "org.dazzyd.cqsocketapi"
+#define CQAPPINFO CQAPIVERTEXT "," CQAPPID
+
+// Socket API
+#define API_SERVER_PORT 11231
+#define API_CLIENT_PORT 11232
+#define FRAME_PREFIX_SIZE 256
+#define FRAME_PAYLOAD_SIZE 32768
+#define FRAME_SIZE (FRAME_PREFIX_SIZE + FRAME_PAYLOAD_SIZE + 1)
