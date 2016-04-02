@@ -13,25 +13,36 @@ extern int appAuthCode;
  * Message Processer
  ********/
 void prcsPrivateMessage(const char *payload) {
-	int64_t qq;
+	int64_t id;
 	char text[FRAME_PAYLOAD_SIZE];
-	sscanf_s(payload, "%d %[^\n]", &qq, text, sizeof(text));
+	sscanf_s(payload, "%d %[^\n]", &id, text, sizeof(text));
 	
 	char decodedText[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
 
-	CQ_sendPrivateMsg(appAuthCode, qq, decodedText);
+	CQ_sendPrivateMsg(appAuthCode, id, decodedText);
 }
 
 void prcsGroupMessage(const char *payload) {
-	int64_t group;
+	int64_t id;
 	char text[FRAME_PAYLOAD_SIZE];
-	sscanf_s(payload, "%d %[^\n]", &group, text, sizeof(text));
+	sscanf_s(payload, "%d %[^\n]", &id, text, sizeof(text));
 	
 	char decodedText[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
 
-	CQ_sendGroupMsg(appAuthCode, group, decodedText);
+	CQ_sendGroupMsg(appAuthCode, id, decodedText);
+}
+
+void prcsDiscussMessage(const char *payload) {
+	int64_t id;
+	char text[FRAME_PAYLOAD_SIZE];
+	sscanf_s(payload, "%d %[^\n]", &id, text, sizeof(text));
+	
+	char decodedText[FRAME_PAYLOAD_SIZE];
+	Base64decode(decodedText, text);
+
+	CQ_sendDiscussMsg(appAuthCode, id, decodedText);
 }
 
 
@@ -75,6 +86,9 @@ void APIServer::run()
 				prcsPrivateMessage(payload);
 			}
 			if (strcmp(prefix, "GroupMessage") == 0) {
+				prcsGroupMessage(payload);
+			}
+			if (strcmp(prefix, "DiscussMessage") == 0) {
 				prcsGroupMessage(payload);
 			}
 		}
