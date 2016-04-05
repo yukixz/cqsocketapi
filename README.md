@@ -7,9 +7,11 @@ You can use my [cqbot](https://github.com/yukixz/cqbot) written in python 3.
 ## Protocol
 
 ### Communication
-Server and client communicate by send UDP frame to each others. Fields are joined by one space in a frame.
-
+Server and client communicate by send UDP frame to each other.
 The server port is 11231 and client is 11232.
+
+A UDP frame contains one Prefix and multiple Fields.
+Prefix and Fields are joined by one space.
 
 ### Server Sent Frame
 ```
@@ -48,3 +50,11 @@ Payload = DiscussID + EncodedText
 
 EncodedText = base64_encode( GBK_encode( text ) )
 ```
+
+### Example Frame
+```
+GroupMessage 123456 10000 dGVzdCCy4srU
+```
+
+# TODO
+* Support multiple client.
