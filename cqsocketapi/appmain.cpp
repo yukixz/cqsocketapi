@@ -147,6 +147,10 @@ CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t sendTime, int64
 */
 CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t beingOperateQQ) {
 
+	char buffer[FRAME_SIZE];
+	sprintf_s(buffer, "GroupAdmin %I32d %I64d %I64d", fromGroup, subType, beingOperateQQ);
+	client->send(buffer, strlen(buffer));
+
 	return EVENT_IGNORE;
 }
 
@@ -199,8 +203,6 @@ CQEVENT(int32_t, __eventFriend_Add, 16)(int32_t subType, int32_t sendTime, int64
 */
 CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, const char *responseFlag) {
 
-	//CQ_setFriendAddRequest(ac, responseFlag, REQUEST_ALLOW, "");
-
 	return EVENT_IGNORE;
 }
 
@@ -212,12 +214,6 @@ CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime
 * responseFlag 反馈标识(处理请求用)
 */
 CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *msg, const char *responseFlag) {
-
-	//if (subType == 1) {
-	//	CQ_setGroupAddRequestV2(ac, responseFlag, REQUEST_GROUPADD, REQUEST_ALLOW, "");
-	//} else if (subType == 2) {
-	//	CQ_setGroupAddRequestV2(ac, responseFlag, REQUEST_GROUPINVITE, REQUEST_ALLOW, "");
-	//}
 
 	return EVENT_IGNORE;
 }
