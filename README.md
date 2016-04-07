@@ -1,14 +1,20 @@
 # CQSocketAPI
 CoolQ Socket API written in VC++.
 
+
 ## QQBot
 You can use my [cqbot](https://github.com/yukixz/cqbot) written in python 3.
+
 
 ## Protocol
 
 ### Communication
-Server and client communicate by send UDP frame to each other.
-The server port is 11231 and client is 11232.
+The communication between server and clients is sending UDP frame to each other.
+
+The server listens on port `11235`.
+
+Clients should send `ClientHello` frame to inform server of client port.
+`ClientHello` frame must be sent on startup and every (at most) 5 minutes.
 
 A UDP frame contains one Prefix and multiple Fields.
 Prefix and Fields are joined by one space.
@@ -39,6 +45,9 @@ EncodedText = base64_encode( GBK_encode( text ) )
 ```
 Frame = Prefix (max 256) + Payload (max 32768)
 
+Prefix = 'ClientHello'
+Payload = Port
+
 Prefix = 'PrivateMessage'
 Payload = QQ + EncodedText
 
@@ -55,6 +64,3 @@ EncodedText = base64_encode( GBK_encode( text ) )
 ```
 GroupMessage 123456 10000 dGVzdCCy4srU
 ```
-
-# TODO
-* Support multiple client.
