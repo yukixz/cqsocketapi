@@ -65,14 +65,14 @@ void APIClient::add(const int port)
 
 void APIClient::send(const char *buffer, const int len)
 {
-	time_t timeout = time(0) + CLIENT_TIMEOUT;
+	time_t timeout = time(0) - CLIENT_TIMEOUT;
 	char log[1024];
 
 	for (int i = 0; i < CLIENT_SIZE; i++) {
 		if (clients[i].hello < 0) {
 			continue;
 		}
-		if (clients[i].hello > timeout) {
+		if (clients[i].hello < timeout) {
 			clients[i].hello = -1;
 			sprintf_s(log, "Client removed: %d.", clients[i].port);
 			CQ_addLog(appAuthCode, CQLOG_INFO, "APIClient", log);
