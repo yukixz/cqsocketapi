@@ -2,8 +2,14 @@
 CoolQ Socket API written in VC++.
 
 
+## Installation
+1. Place `org.dazzyd.cqsocketapi.cpk` into CoolQ app folder.
+2. Enable CQSocketAPI in CoolQ APP management window.
+3. Restart CoolQ.
+
+
 ## QQBot
-You can use my [cqbot](https://github.com/yukixz/cqbot) written in python 3.
+You can write your owned bot based on my [cqbot](https://github.com/yukixz/cqbot) in Python 3.
 
 
 ## Protocol
