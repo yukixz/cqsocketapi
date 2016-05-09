@@ -3,7 +3,6 @@ CoolQ Socket API written in VC++.
 
 
 ## Installation
-0. Install .Net Framework 2.0.
 1. Place `org.dazzyd.cqsocketapi.cpk` into CoolQ app folder.
 2. Enable CQSocketAPI in CoolQ APP management window.
 3. Restart CoolQ.
