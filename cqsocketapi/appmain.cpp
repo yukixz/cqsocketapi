@@ -8,6 +8,7 @@
 #include "winsock2.h"
 #include "APIClient.h"
 #include "APIServer.h"
+#include "sstream"
 
 using namespace std;
 
@@ -15,6 +16,12 @@ APIClient *client = NULL;
 APIServer *server = NULL;
 int appAuthCode = -1;
 
+int SERVER_PORT = 11235;
+int CLIENT_SIZE = 32;
+int CLIENT_TIMEOUT = 300;
+int FRAME_PREFIX_SIZE = 256;
+int FRAME_PAYLOAD_SIZE = 32768;
+int FRAME_SIZE = 33025;
 
 unsigned __stdcall startServer(void *args) {
 	server = new APIServer();
@@ -70,6 +77,35 @@ CQEVENT(int32_t, __eventExit, 0)() {
 */
 CQEVENT(int32_t, __eventEnable, 0)() {
 
+	string configFolder = ".\\app\\" CQAPPID;
+	string configFile = configFolder + "\\config.ini";
+
+	if (GetFileAttributes(configFile.data()) == -1) {
+		if (GetFileAttributes(configFolder.data()) == -1) {
+			CreateDirectory(configFolder.data(), NULL);
+		}
+		CloseHandle(CreateFile(configFile.data(), GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
+		CQ_addLog(appAuthCode, CQLOG_INFO, "提示信息", "配置文件不存在，将以默认值自动生成");
+	}
+
+	stringstream ss;  string value; int valueInt = -1;
+
+	#define tryGetInt(id)\
+	valueInt = GetPrivateProfileInt("Server", #id, -1, configFile.data());\
+	if (valueInt != -1) {id = valueInt;} else {\
+		ss << id; ss >> value;\
+		WritePrivateProfileString("Server", #id, value.data(), configFile.data());\
+	}\
+	ss.clear(); value.clear();valueInt = -1;\
+
+	tryGetInt(SERVER_PORT);
+	tryGetInt(CLIENT_SIZE);
+	tryGetInt(CLIENT_TIMEOUT);
+	tryGetInt(FRAME_PREFIX_SIZE);
+	tryGetInt(FRAME_PAYLOAD_SIZE);
+
+	FRAME_SIZE = (FRAME_PREFIX_SIZE + FRAME_PAYLOAD_SIZE + 1);
+
 	client = new APIClient();
 
 	unsigned tid;
@@ -98,11 +134,11 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 */
 CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, int32_t font) {
 
-	char encoded_msg[FRAME_PAYLOAD_SIZE];
+	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
 	Base64encode(encoded_msg, msg, strlen(msg));
 
-	char buffer[FRAME_SIZE];
-	sprintf_s(buffer, "PrivateMessage %I64d %s", fromQQ, encoded_msg);
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "PrivateMessage %I64d %s", fromQQ, encoded_msg);
 	client->send(buffer, strlen(buffer));
 
 	return EVENT_IGNORE;
@@ -114,11 +150,11 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
 	
-	char encoded_msg[FRAME_PAYLOAD_SIZE];
+	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
 	Base64encode(encoded_msg, msg, strlen(msg));
 
-	char buffer[FRAME_SIZE];
-	sprintf_s(buffer, "GroupMessage %I64d %I64d %s", fromGroup, fromQQ, encoded_msg);
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMessage %I64d %I64d %s", fromGroup, fromQQ, encoded_msg);
 	client->send(buffer, strlen(buffer));
 
 	return EVENT_IGNORE;
@@ -130,11 +166,11 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t
 */
 CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t sendTime, int64_t fromDiscuss, int64_t fromQQ, const char *msg, int32_t font) {
 	
-	char encoded_msg[FRAME_PAYLOAD_SIZE];
+	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
 	Base64encode(encoded_msg, msg, strlen(msg));
 
-	char buffer[FRAME_SIZE];
-	sprintf_s(buffer, "DiscussMessage %I64d %I64d %s", fromDiscuss, fromQQ, encoded_msg);
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "DiscussMessage %I64d %I64d %s", fromDiscuss, fromQQ, encoded_msg);
 	client->send(buffer, strlen(buffer));
 
 	return EVENT_IGNORE;
@@ -147,8 +183,8 @@ CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t sendTime, int64
 */
 CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t beingOperateQQ) {
 
-	char buffer[FRAME_SIZE];
-	sprintf_s(buffer, "GroupAdmin %I32d %I64d %I64d", fromGroup, subType, beingOperateQQ);
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupAdmin %I32d %I64d %I64d", fromGroup, subType, beingOperateQQ);
 	client->send(buffer, strlen(buffer));
 
 	return EVENT_IGNORE;
@@ -163,8 +199,8 @@ CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
 
-	char buffer[FRAME_SIZE];
-	sprintf_s(buffer, "GroupMemberDecrease %I64d %I64d %I64d", fromGroup, fromQQ, beingOperateQQ);
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMemberDecrease %I64d %I64d %I64d", fromGroup, fromQQ, beingOperateQQ);
 	client->send(buffer, strlen(buffer));
 
 	return EVENT_IGNORE;
@@ -179,8 +215,8 @@ CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberIncrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
 
-	char buffer[FRAME_SIZE];
-	sprintf_s(buffer, "GroupMemberIncrease %I64d %I64d %I64d", fromGroup, fromQQ, beingOperateQQ);
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMemberIncrease %I64d %I64d %I64d", fromGroup, fromQQ, beingOperateQQ);
 	client->send(buffer, strlen(buffer));
 
 	return EVENT_IGNORE;

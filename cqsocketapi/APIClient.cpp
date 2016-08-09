@@ -13,6 +13,7 @@ APIClient::APIClient(void)
 	WSAStartup(MAKEWORD(1, 1), &wsa);
 	
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
+	clients = new APIClientInfo[CLIENT_SIZE];
 	for (int i = 0; i < CLIENT_SIZE; i++) {
 		clients[i].hello = -1;
 	}

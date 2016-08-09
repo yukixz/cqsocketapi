@@ -19,5 +19,5 @@ public:
 	void send(const char *buffer, const int len);
 private:
 	SOCKET sock;
-	struct APIClientInfo clients[CLIENT_SIZE];
+	struct APIClientInfo* clients;
 };

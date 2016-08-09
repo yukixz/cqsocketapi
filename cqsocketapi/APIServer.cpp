@@ -19,14 +19,17 @@ void prcsClientHello(const char *payload) {
 	sscanf_s(payload, "%d", &port);
 
 	client->add(port);
+
+	char* buffer = "ServerHello";
+	client->send(buffer, strlen(buffer));
 }
 
 void prcsPrivateMessage(const char *payload) {
 	int64_t id;
-	char text[FRAME_PAYLOAD_SIZE];
-	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(text));
+	char* text = new char[FRAME_PAYLOAD_SIZE];
+	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(char) * FRAME_PAYLOAD_SIZE);
 	
-	char decodedText[FRAME_PAYLOAD_SIZE];
+	char* decodedText = new char[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
 
 	CQ_sendPrivateMsg(appAuthCode, id, decodedText);
@@ -34,10 +37,10 @@ void prcsPrivateMessage(const char *payload) {
 
 void prcsGroupMessage(const char *payload) {
 	int64_t id;
-	char text[FRAME_PAYLOAD_SIZE];
-	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(text));
-	
-	char decodedText[FRAME_PAYLOAD_SIZE];
+	char* text = new char[FRAME_PAYLOAD_SIZE];
+	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(char) * FRAME_PAYLOAD_SIZE);
+
+	char* decodedText = new char[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
 
 	CQ_sendGroupMsg(appAuthCode, id, decodedText);
@@ -45,10 +48,10 @@ void prcsGroupMessage(const char *payload) {
 
 void prcsDiscussMessage(const char *payload) {
 	int64_t id;
-	char text[FRAME_PAYLOAD_SIZE];
-	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(text));
+	char* text = new char[FRAME_PAYLOAD_SIZE];
+	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(char) * FRAME_PAYLOAD_SIZE);
 	
-	char decodedText[FRAME_PAYLOAD_SIZE];
+	char* decodedText = new char[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
 
 	CQ_sendDiscussMsg(appAuthCode, id, decodedText);
@@ -85,16 +88,16 @@ APIServer::~APIServer(void)
 
 void APIServer::run()
 {
-	char buffer[FRAME_SIZE];
-	char prefix[FRAME_PREFIX_SIZE];
-	char payload[FRAME_PAYLOAD_SIZE];
+	char* buffer = new char[FRAME_SIZE];
+	char* prefix = new char[FRAME_PREFIX_SIZE];
+	char* payload = new char[FRAME_PAYLOAD_SIZE];
 
 	while (1) {
-		memset(buffer, 0, sizeof(buffer));
-		memset(prefix, 0, sizeof(prefix));
-		memset(payload, 0, sizeof(payload));
-		if (recv(sock, buffer, sizeof(buffer), 0) != SOCKET_ERROR) {
-			sscanf_s(buffer, "%s %[^\n]", prefix, sizeof(prefix), payload, sizeof(payload));
+		memset(buffer, 0, sizeof(char) * FRAME_SIZE);
+		memset(prefix, 0, sizeof(char) * FRAME_PREFIX_SIZE);
+		memset(payload, 0, sizeof(char) * FRAME_PAYLOAD_SIZE);
+		if (recv(sock, buffer, sizeof(char) * FRAME_SIZE, 0) != SOCKET_ERROR) {
+			sscanf_s(buffer, "%s %[^\n]", prefix, sizeof(char) * FRAME_PREFIX_SIZE, payload, sizeof(char) * FRAME_PAYLOAD_SIZE);
 			
 			if (strcmp(prefix, "ClientHello") == 0) {
 				prcsClientHello(payload);
