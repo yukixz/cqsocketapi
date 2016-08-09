@@ -24,7 +24,7 @@ void prcsClientHello(const char *payload) {
 void prcsPrivateMessage(const char *payload) {
 	int64_t id;
 	char text[FRAME_PAYLOAD_SIZE];
-	sscanf_s(payload, "%d %[^\n]", &id, text, sizeof(text));
+	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(text));
 	
 	char decodedText[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
@@ -35,7 +35,7 @@ void prcsPrivateMessage(const char *payload) {
 void prcsGroupMessage(const char *payload) {
 	int64_t id;
 	char text[FRAME_PAYLOAD_SIZE];
-	sscanf_s(payload, "%d %[^\n]", &id, text, sizeof(text));
+	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(text));
 	
 	char decodedText[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
@@ -46,7 +46,7 @@ void prcsGroupMessage(const char *payload) {
 void prcsDiscussMessage(const char *payload) {
 	int64_t id;
 	char text[FRAME_PAYLOAD_SIZE];
-	sscanf_s(payload, "%d %[^\n]", &id, text, sizeof(text));
+	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(text));
 	
 	char decodedText[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
@@ -109,7 +109,7 @@ void APIServer::run()
 				continue;
 			}
 			if (strcmp(prefix, "DiscussMessage") == 0) {
-				prcsGroupMessage(payload);
+				prcsDiscussMessage(payload);
 				continue;
 			}
 			// Unknown prefix
