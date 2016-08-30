@@ -1,3 +1,4 @@
+This is the development branch, do not use
 # Notice
 This repository is forked from yukixz/cqsocketapi.
 The main purpose of this repository is to enable connection from all ip (original one only allowed local connection) For security reason, please configure your firewall rules.
