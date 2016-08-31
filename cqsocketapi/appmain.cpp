@@ -9,6 +9,7 @@
 #include "APIClient.h"
 #include "APIServer.h"
 #include "sstream"
+#include "MemberInfoProccessor.h"
 
 using namespace std;
 
@@ -150,6 +151,8 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
 	
+
+
 	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
 	Base64encode(encoded_msg, msg, strlen(msg));
 
