@@ -30,7 +30,7 @@ unsigned __stdcall startServer(void *args) {
 	return 0;
 }
 
-/* 
+/*
 * 返回应用的ApiVer、Appid，打包后将不会调用
 */
 CQEVENT(const char*, AppInfo, 0)() {
@@ -38,7 +38,7 @@ CQEVENT(const char*, AppInfo, 0)() {
 }
 
 
-/* 
+/*
 * 接收应用AuthCode，酷Q读取应用信息后，如果接受该应用，将会调用这个函数并传递AuthCode。
 * 不要在本函数处理其他任何代码，以免发生异常情况。如需执行初始化代码请在Startup事件中执行（Type=1001）。
 */
@@ -91,7 +91,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 
 	stringstream ss;  string value; int valueInt = -1;
 
-	#define tryGetInt(id)\
+#define tryGetInt(id)\
 	valueInt = GetPrivateProfileInt("Server", #id, -1, configFile.data());\
 	if (valueInt != -1) {id = valueInt;} else {\
 		ss << id; ss >> value;\
@@ -111,7 +111,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 
 	unsigned tid;
 	HANDLE thd;
-	thd = (HANDLE) _beginthreadex(NULL, 0, startServer, NULL, 0, &tid);
+	thd = (HANDLE)_beginthreadex(NULL, 0, startServer, NULL, 0, &tid);
 
 	return 0;
 }
@@ -150,14 +150,27 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 * Type=2 群消息
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
-	
 
-
+	struct CQ_Type_GroupMember memberinfo;
+	MemberInfoProccessor proc;
+	bool gotInfo = proc.GetGroupMemberInfo(appAuthCode, fromGroup, fromQQ, memberinfo);
+	std::string nickname_result;
+	if (gotInfo) {
+		nickname_result = memberinfo.nick;
+		if (nickname_result.length() == 0) {
+			nickname_result = "未设置群名片";
+		}
+	}
+	else {
+		nickname_result = "未设置群名片";
+	}
+	const char *nickname = nickname_result.c_str();
+	char* encoded_nickname = new char[1024];
 	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
 	Base64encode(encoded_msg, msg, strlen(msg));
-
+	Base64encode(encoded_nickname, nickname, strlen(nickname));
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMessage %I64d %I64d %s", fromGroup, fromQQ, encoded_msg);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMessage %I64d %I64d %s %s", fromGroup, fromQQ, encoded_nickname, encoded_msg);
 	client->send(buffer, strlen(buffer));
 
 	return EVENT_IGNORE;
@@ -168,7 +181,7 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t
 * Type=4 讨论组消息
 */
 CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t sendTime, int64_t fromDiscuss, int64_t fromQQ, const char *msg, int32_t font) {
-	
+
 	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
 	Base64encode(encoded_msg, msg, strlen(msg));
 
@@ -185,11 +198,11 @@ CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t sendTime, int64
 * subType 子类型，1/被取消管理员 2/被设置管理员
 */
 CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t beingOperateQQ) {
-
+	/*
 	char* buffer = new char[FRAME_SIZE];
 	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupAdmin %I32d %I64d %I64d", fromGroup, subType, beingOperateQQ);
 	client->send(buffer, strlen(buffer));
-
+	*/
 	return EVENT_IGNORE;
 }
 
@@ -217,11 +230,31 @@ CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t
 * beingOperateQQ 被操作QQ(即加群的QQ)
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberIncrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
+	struct CQ_Type_GroupMember memberinfo;
+	MemberInfoProccessor proc;
+	bool gotInfo = proc.GetGroupMemberInfo(appAuthCode, fromGroup, fromQQ, memberinfo);
+	std::string username_result;
+	if (gotInfo) {
+		username_result = memberinfo.username;
+	}
+	else {
+		username_result = "";
+	}
 
+	const char *username = username_result.c_str();
+	const char* mssg_pre = "欢迎新玩家:";
+	const char * mssg_post = "进群 （输入/qq 信息向qq群发消息）";
+	char* mssg = new char[FRAME_PAYLOAD_SIZE];
+	sprintf_s(mssg, FRAME_PAYLOAD_SIZE * sizeof(char), "%s %s %s", mssg_pre, username, mssg_post);
+	const char *nickname = "系统消息";
+	char* encoded_nickname = new char[1024];
+	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
+	Base64encode(encoded_nickname, nickname, strlen(nickname));
+	Base64encode(encoded_msg, mssg, strlen(mssg));
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMemberIncrease %I64d %I64d %I64d", fromGroup, fromQQ, beingOperateQQ);
+	int64_t QQid = 12345;
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMessage %I64d %I64d %s %s", fromGroup, QQid, encoded_nickname, encoded_msg);
 	client->send(buffer, strlen(buffer));
-
 	return EVENT_IGNORE;
 }
 
@@ -263,12 +296,12 @@ CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime,
 */
 /*
 CQEVENT(int32_t, __menuA, 0)() {
-	MessageBoxA(NULL, "这是menuA，在这里载入窗口，或者进行其他工作。", "" ,0);
-	return 0;
+MessageBoxA(NULL, "这是menuA，在这里载入窗口，或者进行其他工作。", "" ,0);
+return 0;
 }
 
 CQEVENT(int32_t, __menuB, 0)() {
-	MessageBoxA(NULL, "这是menuB，在这里载入窗口，或者进行其他工作。", "" ,0);
-	return 0;
+MessageBoxA(NULL, "这是menuB，在这里载入窗口，或者进行其他工作。", "" ,0);
+return 0;
 }
 */
