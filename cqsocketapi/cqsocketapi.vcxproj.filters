@@ -39,6 +39,12 @@
     <ClInclude Include="APIServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MemberInfoParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemberInfoProccessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +63,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="APIServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemberInfoParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemberInfoProccessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
