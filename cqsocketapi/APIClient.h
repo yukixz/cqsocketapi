@@ -17,7 +17,6 @@ public:
 	~APIClient(void);
 	void add(const int port);
 	void send(const char *buffer, const int len);
-	void send(const char *buffer, const int len, int port);
 private:
 	SOCKET sock;
 	struct APIClientInfo* clients;
