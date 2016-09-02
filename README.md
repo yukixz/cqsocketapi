@@ -1,3 +1,9 @@
+This is the development branch, do not use
+# Notice
+This repository is forked from yukixz/cqsocketapi.
+The main purpose of this repository is to enable connection from all ip (original one only allowed local connection) For security reason, please configure your firewall rules.
+Also I'll add Group Member Info parser to this program.
+
 # CQSocketAPI
 CoolQ Socket API written in VC++.
 
@@ -6,11 +12,6 @@ CoolQ Socket API written in VC++.
 1. Place `org.dazzyd.cqsocketapi.cpk` into CoolQ app folder.
 2. Enable CQSocketAPI in CoolQ APP management window.
 3. Restart CoolQ.
-
-
-## QQBot
-You can write your owned bot based on my [cqbot](https://github.com/yukixz/cqbot) in Python 3.
-
 
 ## Protocol
 

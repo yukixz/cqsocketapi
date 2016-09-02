@@ -15,7 +15,7 @@ class APIClient
 public:
 	APIClient(void);
 	~APIClient(void);
-	void add(const int port);
+	void add(const int port, const char *ip);
 	void send(const char *buffer, const int len);
 private:
 	SOCKET sock;
