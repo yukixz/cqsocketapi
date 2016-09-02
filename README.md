@@ -29,6 +29,9 @@ Prefix and Fields are joined by one space.
 ```
 Frame = Prefix (max 256) + Payload (max 32768)
 
+Prefix = 'ServerHello'
+Payload = NULL
+
 Prefix = 'PrivateMessage'
 Payload = QQ + EncodedText
 
@@ -63,10 +66,13 @@ Payload = GroupID + EncodedText
 Prefix = 'DiscussMessage'
 Payload = DiscussID + EncodedText
 
+Prefix = 'GroupMemberInfo'
+Payload = Port + GroupID + QQ
+
 EncodedText = base64_encode( GBK_encode( text ) )
 ```
 
-### Example Frame
+### Example Frame (From Server)
 ```
 GroupMessage 123456 10000 dGVzdCCy4srU
 ```
