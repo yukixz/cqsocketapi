@@ -196,3 +196,5 @@ FakesAssemblies/
 *.opt
 *.db
 *.opendb
+/cqsocketapi.VC.db
+/cqsocketapi.VC.VC.opendb
