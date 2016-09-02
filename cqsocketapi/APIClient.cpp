@@ -11,7 +11,7 @@ APIClient::APIClient(void)
 {
 	WSADATA wsa;
 	WSAStartup(MAKEWORD(1, 1), &wsa);
-	
+
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
 	clients = new APIClientInfo[CLIENT_SIZE];
 	for (int i = 0; i < CLIENT_SIZE; i++) {
@@ -26,7 +26,7 @@ APIClient::~APIClient(void)
 }
 
 
-void APIClient::add(const int port)
+void APIClient::add(const int port, const char *ip)
 {
 	int free_i = -1;
 	int port_i = -1;
@@ -43,7 +43,7 @@ void APIClient::add(const int port)
 	// Update hello timestamp if client port is registered.
 	if (port_i >= 0) {
 		clients[port_i].hello = time(0);
-		sprintf_s(log, "Client updated: %d.", port);
+		sprintf_s(log, "Client updated: %s:%d.", ip, port);
 		CQ_addLog(appAuthCode, CQLOG_INFO, "APIClient", log);
 	}
 	// Add new client port.
@@ -51,14 +51,14 @@ void APIClient::add(const int port)
 		clients[free_i].hello = time(0);
 		clients[free_i].port = port;
 		clients[free_i].info.sin_family = AF_INET;
-		clients[free_i].info.sin_addr.s_addr = inet_addr("127.0.0.1");
+		clients[free_i].info.sin_addr.s_addr = inet_addr(ip);
 		clients[free_i].info.sin_port = htons(port);
-		sprintf_s(log, "Client added: %d.", port);
+		sprintf_s(log, "Client added: %s:%d.", ip, port);
 		CQ_addLog(appAuthCode, CQLOG_INFO, "APIClient", log);
 	}
 	// Send a warning when client cap if full.
 	else {
-		sprintf_s(log, "Client cap is full! Cannot add port: %d.", port);
+		sprintf_s(log, "Client cap is full! Cannot add client: %s:%d.", ip, port);
 		CQ_addLog(appAuthCode, CQLOG_WARNING, "APIClient", log);
 	}
 }

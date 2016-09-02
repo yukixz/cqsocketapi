@@ -12,14 +12,22 @@ extern int appAuthCode;
 
 
 /********
- * Message Processer
- ********/
+* Message Processer
+********/
 void prcsClientHello(const char *payload) {
-	int port;
-	sscanf_s(payload, "%d", &port);
-
-	client->add(port);
-
+	char *ipv4, *port;
+	char* splitter = ":";
+	char *input = new char[strlen(payload) + 1];
+	strcpy(input, payload);
+	ipv4 = strtok(input, splitter);
+	port = strtok(NULL, ":");
+	int temp = atoi(port);
+	//CQ_addLog(appAuthCode, CQLOG_INFO,"APIClient", ipv4);
+	//CQ_addLog(appAuthCode, CQLOG_INFO, "APIClient", port);
+	char log[1024];
+	//sprintf_s(log, "Client added: %d.", temp);
+	//CQ_addLog(appAuthCode, CQLOG_INFO, "APIClient", log);
+	client->add(temp, ipv4);
 	char* buffer = "ServerHello";
 	client->send(buffer, strlen(buffer));
 }
@@ -28,7 +36,7 @@ void prcsPrivateMessage(const char *payload) {
 	int64_t id;
 	char* text = new char[FRAME_PAYLOAD_SIZE];
 	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(char) * FRAME_PAYLOAD_SIZE);
-	
+
 	char* decodedText = new char[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
 
@@ -50,7 +58,7 @@ void prcsDiscussMessage(const char *payload) {
 	int64_t id;
 	char* text = new char[FRAME_PAYLOAD_SIZE];
 	sscanf_s(payload, "%I64d %[^\n]", &id, text, sizeof(char) * FRAME_PAYLOAD_SIZE);
-	
+
 	char* decodedText = new char[FRAME_PAYLOAD_SIZE];
 	Base64decode(decodedText, text);
 
@@ -64,15 +72,15 @@ void prcsUnknownFramePrefix(const char *buffer) {
 
 
 /********
- * API Server
- ********/
+* API Server
+********/
 APIServer::APIServer(void)
 {
 	WSADATA wsa;
 	WSAStartup(MAKEWORD(1, 1), &wsa);
-	
+
 	localInfo.sin_family = AF_INET;
-	localInfo.sin_addr.s_addr = inet_addr("127.0.0.1");
+	localInfo.sin_addr.s_addr = inet_addr("0.0.0.0");
 	localInfo.sin_port = htons(SERVER_PORT);
 
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -98,7 +106,7 @@ void APIServer::run()
 		memset(payload, 0, sizeof(char) * FRAME_PAYLOAD_SIZE);
 		if (recv(sock, buffer, sizeof(char) * FRAME_SIZE, 0) != SOCKET_ERROR) {
 			sscanf_s(buffer, "%s %[^\n]", prefix, sizeof(char) * FRAME_PREFIX_SIZE, payload, sizeof(char) * FRAME_PAYLOAD_SIZE);
-			
+
 			if (strcmp(prefix, "ClientHello") == 0) {
 				prcsClientHello(payload);
 				continue;

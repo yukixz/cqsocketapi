@@ -214,11 +214,11 @@ CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime
 * beingOperateQQ ±»²Ù×÷QQ
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
-
+	/*
 	char* buffer = new char[FRAME_SIZE];
 	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMemberDecrease %I64d %I64d %I64d", fromGroup, fromQQ, beingOperateQQ);
 	client->send(buffer, strlen(buffer));
-
+	*/
 	return EVENT_IGNORE;
 }
 
