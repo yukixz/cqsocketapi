@@ -57,6 +57,18 @@ void prcsDiscussMessage(const char *payload) {
 	CQ_sendDiscussMsg(appAuthCode, id, decodedText);
 }
 
+void prcsGroupMemberInfo(const char *payload) {
+	int64_t port; int64_t groupId; int64_t id;
+	sscanf_s(payload, "%I64d %I64d %I64d", &port, &groupId, &id, sizeof(char) * FRAME_PAYLOAD_SIZE);
+
+	const char* buffer = CQ_getGroupMemberInfoV2(appAuthCode, groupId, id, false);
+	if (strlen(buffer) == 0) {
+		buffer = "-1";
+	}
+
+	client->send(buffer, strlen(buffer), port);
+}
+
 void prcsUnknownFramePrefix(const char *buffer) {
 	char category[] = "UnknownFramePrefix";
 	CQ_addLog(appAuthCode, CQLOG_WARNING, category, buffer);
@@ -115,6 +127,11 @@ void APIServer::run()
 				prcsDiscussMessage(payload);
 				continue;
 			}
+			if (strcmp(prefix, "GroupMemberInfo") == 0) {
+				prcsGroupMemberInfo(payload);
+				continue;
+			}
+			
 			// Unknown prefix
 			prcsUnknownFramePrefix(buffer);
 		}
