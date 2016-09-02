@@ -5,7 +5,7 @@
 #include "APIClient.h"
 
 extern int appAuthCode;
-//test
+
 
 APIClient::APIClient(void)
 {
@@ -80,5 +80,14 @@ void APIClient::send(const char *buffer, const int len)
 			continue;
 		}
 		sendto(sock, buffer, len, 0, (sockaddr *)&clients[i].info, sizeof(clients[i].info));
+	}
+}
+
+void APIClient::send(const char *buffer, const int len, int port)
+{
+	for (int i = 0; i < CLIENT_SIZE; i++) {
+		if (clients[i].port == port) {
+			sendto(sock, buffer, len, 0, (sockaddr *)&clients[i].info, sizeof(clients[i].info));
+		}
 	}
 }
