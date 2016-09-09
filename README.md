@@ -9,7 +9,7 @@ CoolQ Socket API written in VC++.
 
 
 ## QQBot
-You can write your owned bot based on my [cqbot](https://github.com/yukixz/cqbot) in Python 3.
+You can write your owned bot based on my [qqbot](https://github.com/yukixz/qqbot) in Python 3.
 
 
 ## Protocol
