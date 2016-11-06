@@ -46,6 +46,13 @@ void prcsGroupMessage(const char *payload) {
 	CQ_sendGroupMsg(appAuthCode, id, decodedText);
 }
 
+void prcsGroupBan(const char *payload) {
+	int64_t group, qq, duration;
+	sscanf_s(payload, "%I64d %I64d %I64d", &group, &qq, &duration);
+
+	CQ_setGroupBan(appAuthCode, group, qq, duration);
+}
+
 void prcsDiscussMessage(const char *payload) {
 	int64_t id;
 	char* text = new char[FRAME_PAYLOAD_SIZE];
@@ -109,6 +116,10 @@ void APIServer::run()
 			}
 			if (strcmp(prefix, "GroupMessage") == 0) {
 				prcsGroupMessage(payload);
+				continue;
+			}
+			if (strcmp(prefix, "GroupBan") == 0) {
+				prcsGroupBan(payload);
 				continue;
 			}
 			if (strcmp(prefix, "DiscussMessage") == 0) {
