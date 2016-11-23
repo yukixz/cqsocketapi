@@ -64,6 +64,16 @@ void prcsDiscussMessage(const char *payload) {
 	CQ_sendDiscussMsg(appAuthCode, id, decodedText);
 }
 
+void prcsFatal(const char *payload) {
+	char* text = new char[FRAME_PAYLOAD_SIZE];
+	sscanf_s(payload, "%[^\n]", text, sizeof(char) * FRAME_PAYLOAD_SIZE);
+
+	char* decodedText = new char[FRAME_PAYLOAD_SIZE];
+	Base64decode(decodedText, text);
+
+	CQ_setFatal(appAuthCode, decodedText);
+}
+
 void prcsUnknownFramePrefix(const char *buffer) {
 	char category[] = "UnknownFramePrefix";
 	CQ_addLog(appAuthCode, CQLOG_WARNING, category, buffer);
@@ -124,6 +134,10 @@ void APIServer::run()
 			}
 			if (strcmp(prefix, "DiscussMessage") == 0) {
 				prcsDiscussMessage(payload);
+				continue;
+			}
+			if (strcmp(prefix, "Fatal") == 0) {
+				prcsFatal(payload);
 				continue;
 			}
 			// Unknown prefix
