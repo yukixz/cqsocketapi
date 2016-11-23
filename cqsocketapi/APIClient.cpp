@@ -43,8 +43,8 @@ void APIClient::add(const int port)
 	// Update hello timestamp if client port is registered.
 	if (port_i >= 0) {
 		clients[port_i].hello = time(0);
-		sprintf_s(log, "Client updated: %d.", port);
-		CQ_addLog(appAuthCode, CQLOG_INFO, "APIClient", log);
+		// sprintf_s(log, "Client updated: %d.", port);
+		// CQ_addLog(appAuthCode, CQLOG_INFO, "APIClient", log);
 	}
 	// Add new client port.
 	else if (free_i >= 0) {
