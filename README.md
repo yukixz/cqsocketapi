@@ -44,7 +44,7 @@ Payload = GroupID + QQ + OperatedQQ
 Prefix = 'GroupMemberIncrease'
 Payload = GroupID + QQ + OperatedQQ
 
-EncodedText = base64_encode( GBK_encode( text ) )
+EncodedText = base64_encode( GB18030_encode( text ) )
 ```
 
 ### Client Sent Frame
@@ -63,7 +63,7 @@ Payload = GroupID + EncodedText
 Prefix = 'DiscussMessage'
 Payload = DiscussID + EncodedText
 
-EncodedText = base64_encode( GBK_encode( text ) )
+EncodedText = base64_encode( GB18030_encode( text ) )
 ```
 
 ### Example Frame
