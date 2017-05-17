@@ -12,8 +12,8 @@
 
 using namespace std;
 
-APIClient *client = NULL;
-APIServer *server = NULL;
+APIClient *client = nullptr;
+APIServer *server = nullptr;
 int appAuthCode = -1;
 
 int SERVER_PORT = 11235;
@@ -29,52 +29,25 @@ unsigned __stdcall startServer(void *args) {
 	return 0;
 }
 
-/* 
-* ·µ»ØÓ¦ÓÃµÄApiVer¡¢Appid£¬´ò°üºó½«²»»áµ÷ÓÃ
-*/
 CQEVENT(const char*, AppInfo, 0)() {
 	return CQAPPINFO;
 }
 
-
-/* 
-* ½ÓÊÕÓ¦ÓÃAuthCode£¬¿áQ¶ÁÈ¡Ó¦ÓÃÐÅÏ¢ºó£¬Èç¹û½ÓÊÜ¸ÃÓ¦ÓÃ£¬½«»áµ÷ÓÃÕâ¸öº¯Êý²¢´«µÝAuthCode¡£
-* ²»ÒªÔÚ±¾º¯Êý´¦ÀíÆäËûÈÎºÎ´úÂë£¬ÒÔÃâ·¢ÉúÒì³£Çé¿ö¡£ÈçÐèÖ´ÐÐ³õÊ¼»¯´úÂëÇëÔÚStartupÊÂ¼þÖÐÖ´ÐÐ£¨Type=1001£©¡£
-*/
 CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 	appAuthCode = AuthCode;
-
 	return 0;
 }
 
-
-/*
-* Type=1001 ¿áQÆô¶¯
-* ÎÞÂÛ±¾Ó¦ÓÃÊÇ·ñ±»ÆôÓÃ£¬±¾º¯Êý¶¼»áÔÚ¿áQÆô¶¯ºóÖ´ÐÐÒ»´Î£¬ÇëÔÚÕâÀïÖ´ÐÐÓ¦ÓÃ³õÊ¼»¯´úÂë¡£
-* Èç·Ç±ØÒª£¬²»½¨ÒéÔÚÕâÀï¼ÓÔØ´°¿Ú¡££¨¿ÉÒÔÌí¼Ó²Ëµ¥£¬ÈÃÓÃ»§ÊÖ¶¯´ò¿ª´°¿Ú£©
-*/
 CQEVENT(int32_t, __eventStartup, 0)() {
-
 	return 0;
 }
 
-
-/*
-* Type=1002 ¿áQÍË³ö
-* ÎÞÂÛ±¾Ó¦ÓÃÊÇ·ñ±»ÆôÓÃ£¬±¾º¯Êý¶¼»áÔÚ¿áQÍË³öÇ°Ö´ÐÐÒ»´Î£¬ÇëÔÚÕâÀïÖ´ÐÐ²å¼þ¹Ø±Õ´úÂë¡£
-* ±¾º¯Êýµ÷ÓÃÍê±Ïºó£¬¿áQ½«ºÜ¿ì¹Ø±Õ£¬Çë²»ÒªÔÙÍ¨¹ýÏß³ÌµÈ·½Ê½Ö´ÐÐÆäËû´úÂë¡£
-*/
 CQEVENT(int32_t, __eventExit, 0)() {
-
+	delete client;
+	delete server;
 	return 0;
 }
 
-/*
-* Type=1003 Ó¦ÓÃÒÑ±»ÆôÓÃ
-* µ±Ó¦ÓÃ±»ÆôÓÃºó£¬½«ÊÕµ½´ËÊÂ¼þ¡£
-* Èç¹û¿áQÔØÈëÊ±Ó¦ÓÃÒÑ±»ÆôÓÃ£¬ÔòÔÚ_eventStartup(Type=1001,¿áQÆô¶¯)±»µ÷ÓÃºó£¬±¾º¯ÊýÒ²½«±»µ÷ÓÃÒ»´Î¡£
-* Èç·Ç±ØÒª£¬²»½¨ÒéÔÚÕâÀï¼ÓÔØ´°¿Ú¡££¨¿ÉÒÔÌí¼Ó²Ëµ¥£¬ÈÃÓÃ»§ÊÖ¶¯´ò¿ª´°¿Ú£©
-*/
 CQEVENT(int32_t, __eventEnable, 0)() {
 
 	string configFolder = ".\\app\\" CQAPPID;
@@ -85,7 +58,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 			CreateDirectory(configFolder.data(), NULL);
 		}
 		CloseHandle(CreateFile(configFile.data(), GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
-		CQ_addLog(appAuthCode, CQLOG_INFO, "ÌáÊ¾ÐÅÏ¢", "ÅäÖÃÎÄ¼þ²»´æÔÚ£¬½«ÒÔÄ¬ÈÏÖµ×Ô¶¯Éú³É");
+		CQ_addLog(appAuthCode, CQLOG_INFO, "æç¤ºä¿¡æ¯", "é…ç½®æ–‡ä»¶ä¸å­˜åœ¨ï¼Œå°†ä»¥é»˜è®¤å€¼è‡ªåŠ¨ç”Ÿæˆ");
 	}
 
 	stringstream ss;  string value; int valueInt = -1;
@@ -115,22 +88,13 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 	return 0;
 }
 
-
-/*
-* Type=1004 Ó¦ÓÃ½«±»Í£ÓÃ
-* µ±Ó¦ÓÃ±»Í£ÓÃÇ°£¬½«ÊÕµ½´ËÊÂ¼þ¡£
-* Èç¹û¿áQÔØÈëÊ±Ó¦ÓÃÒÑ±»Í£ÓÃ£¬Ôò±¾º¯Êý*²»»á*±»µ÷ÓÃ¡£
-* ÎÞÂÛ±¾Ó¦ÓÃÊÇ·ñ±»ÆôÓÃ£¬¿áQ¹Ø±ÕÇ°±¾º¯Êý¶¼*²»»á*±»µ÷ÓÃ¡£
-*/
 CQEVENT(int32_t, __eventDisable, 0)() {
 
 	return 0;
 }
 
-
 /*
-* Type=21 Ë½ÁÄÏûÏ¢
-* subType ×ÓÀàÐÍ£¬11/À´×ÔºÃÓÑ 1/À´×ÔÔÚÏß×´Ì¬ 2/À´×ÔÈº 3/À´×ÔÌÖÂÛ×é
+* Type=21 ç§èŠæ¶ˆæ¯
 */
 CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, int32_t font) {
 
@@ -144,9 +108,8 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 	return EVENT_IGNORE;
 }
 
-
 /*
-* Type=2 ÈºÏûÏ¢
+* Type=2 ç¾¤æ¶ˆæ¯
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
 	
@@ -160,9 +123,8 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t
 	return EVENT_IGNORE;
 }
 
-
 /*
-* Type=4 ÌÖÂÛ×éÏûÏ¢
+* Type=4 è®¨è®ºç»„æ¶ˆæ¯
 */
 CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t sendTime, int64_t fromDiscuss, int64_t fromQQ, const char *msg, int32_t font) {
 	
@@ -176,10 +138,8 @@ CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t sendTime, int64
 	return EVENT_IGNORE;
 }
 
-
 /*
-* Type=101 ÈºÊÂ¼þ-¹ÜÀíÔ±±ä¶¯
-* subType ×ÓÀàÐÍ£¬1/±»È¡Ïû¹ÜÀíÔ± 2/±»ÉèÖÃ¹ÜÀíÔ±
+* Type=101 ç¾¤äº‹ä»¶-ç®¡ç†å‘˜å˜åŠ¨
 */
 CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t beingOperateQQ) {
 
@@ -190,12 +150,8 @@ CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime
 	return EVENT_IGNORE;
 }
 
-
 /*
-* Type=102 ÈºÊÂ¼þ-Èº³ÉÔ±¼õÉÙ
-* subType ×ÓÀàÐÍ£¬1/ÈºÔ±Àë¿ª 2/ÈºÔ±±»Ìß 3/×Ô¼º(¼´µÇÂ¼ºÅ)±»Ìß
-* fromQQ ²Ù×÷ÕßQQ(½ösubTypeÎª2¡¢3Ê±´æÔÚ)
-* beingOperateQQ ±»²Ù×÷QQ
+* Type=102 ç¾¤äº‹ä»¶-ç¾¤æˆå‘˜å‡å°‘
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
 
@@ -206,12 +162,8 @@ CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t
 	return EVENT_IGNORE;
 }
 
-
 /*
-* Type=103 ÈºÊÂ¼þ-Èº³ÉÔ±Ôö¼Ó
-* subType ×ÓÀàÐÍ£¬1/¹ÜÀíÔ±ÒÑÍ¬Òâ 2/¹ÜÀíÔ±ÑûÇë
-* fromQQ ²Ù×÷ÕßQQ(¼´¹ÜÀíÔ±QQ)
-* beingOperateQQ ±»²Ù×÷QQ(¼´¼ÓÈºµÄQQ)
+* Type=103 ç¾¤äº‹ä»¶-ç¾¤æˆå‘˜å¢žåŠ 
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberIncrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
 
@@ -224,48 +176,41 @@ CQEVENT(int32_t, __eventSystem_GroupMemberIncrease, 32)(int32_t subType, int32_t
 
 
 /*
-* Type=201 ºÃÓÑÊÂ¼þ-ºÃÓÑÒÑÌí¼Ó
+* Type=201 å¥½å‹äº‹ä»¶-å¥½å‹å·²æ·»åŠ 
 */
 CQEVENT(int32_t, __eventFriend_Add, 16)(int32_t subType, int32_t sendTime, int64_t fromQQ) {
+
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "FriendAdded %I64d", fromQQ);
+	client->send(buffer, strlen(buffer));
 
 	return EVENT_IGNORE;
 }
 
-
 /*
-* Type=301 ÇëÇó-ºÃÓÑÌí¼Ó
-* msg ¸½ÑÔ
-* responseFlag ·´À¡±êÊ¶(´¦ÀíÇëÇóÓÃ)
+* Type=301 è¯·æ±‚-å¥½å‹æ·»åŠ 
 */
 CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, const char *responseFlag) {
 
 	return EVENT_IGNORE;
 }
 
-
 /*
-* Type=302 ÇëÇó-ÈºÌí¼Ó
-* subType ×ÓÀàÐÍ£¬1/ËûÈËÉêÇëÈëÈº 2/×Ô¼º(¼´µÇÂ¼ºÅ)ÊÜÑûÈëÈº
-* msg ¸½ÑÔ
-* responseFlag ·´À¡±êÊ¶(´¦ÀíÇëÇóÓÃ)
+* Type=302 è¯·æ±‚-ç¾¤æ·»åŠ 
 */
 CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *msg, const char *responseFlag) {
 
 	return EVENT_IGNORE;
 }
 
-/*
-* ²Ëµ¥£¬¿ÉÔÚ .json ÎÄ¼þÖÐÉèÖÃ²Ëµ¥ÊýÄ¿¡¢º¯ÊýÃû
-* Èç¹û²»Ê¹ÓÃ²Ëµ¥£¬ÇëÔÚ .json ¼°´Ë´¦É¾³ýÎÞÓÃ²Ëµ¥
-*/
-/*
-CQEVENT(int32_t, __menuA, 0)() {
-	MessageBoxA(NULL, "ÕâÊÇmenuA£¬ÔÚÕâÀïÔØÈë´°¿Ú£¬»òÕß½øÐÐÆäËû¹¤×÷¡£", "" ,0);
-	return 0;
-}
+CQEVENT(int32_t, _eventGroupUpload, 28)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *file) {
+	
+	char* encoded_filename = new char[FRAME_PAYLOAD_SIZE];
+	Base64encode(encoded_filename, file, strlen(file));
 
-CQEVENT(int32_t, __menuB, 0)() {
-	MessageBoxA(NULL, "ÕâÊÇmenuB£¬ÔÚÕâÀïÔØÈë´°¿Ú£¬»òÕß½øÐÐÆäËû¹¤×÷¡£", "" ,0);
-	return 0;
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupUpload %I64d %I64d %s", fromGroup, fromQQ, encoded_filename);
+	client->send(buffer, strlen(buffer));
+
+	return EVENT_IGNORE;
 }
-*/
