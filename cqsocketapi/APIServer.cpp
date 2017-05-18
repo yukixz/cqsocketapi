@@ -195,6 +195,31 @@ void prcsFriendAddRequest(const char *payload) {
 	delete[] decodedRemark;
 }
 
+void prcsGroupAddRequest(const char *payload) {
+	int32_t requesttype;
+	int32_t responseoperation;
+	char* responseflag = new char[FRAME_PAYLOAD_SIZE / 2];
+	char* reason = new char[FRAME_PAYLOAD_SIZE / 2];
+
+	sscanf_s(payload, "%[^\n] %I32d %I32d %[^\n]",
+		responseflag, sizeof(char) * FRAME_PAYLOAD_SIZE / 2,
+		&requesttype,
+		&responseoperation,
+		reason, sizeof(char) * FRAME_PAYLOAD_SIZE / 2);
+
+	char* decodedResponseflag = new char[FRAME_PAYLOAD_SIZE / 2];
+	char* decodedReason = new char[FRAME_PAYLOAD_SIZE / 2];
+	Base64decode(decodedResponseflag, responseflag);
+	Base64decode(decodedReason, reason);
+
+	CQ_setGroupAddRequestV2(appAuthCode, decodedResponseflag, requesttype, responseoperation, decodedReason);
+
+	delete[] responseflag;
+	delete[] reason;
+	delete[] decodedResponseflag;
+	delete[] decodedReason;
+}
+
 void prcsGetGroupMemberInfo(const char *payload) {
 	CQBOOL nocache;
 	int64_t group, qq;
@@ -251,7 +276,7 @@ void prcsGetStrangerInfo(const char *payload) {
 
 void prcsGetCookies() {
 
-	char* encoded_cookies= new char[FRAME_PAYLOAD_SIZE];
+	char* encoded_cookies = new char[FRAME_PAYLOAD_SIZE];
 	auto cookies = CQ_getCookies(appAuthCode);
 	Base64encode(encoded_cookies, cookies, strlen(cookies));
 
@@ -434,6 +459,11 @@ void APIServer::run() {
 
 			if (strcmp(prefix, "FriendAddRequest") == 0) {
 				prcsFriendAddRequest(payload);
+				continue;
+			}
+
+			if (strcmp(prefix, "GroupAddRequest") == 0) {
+				prcsGroupAddRequest(payload);
 				continue;
 			}
 
