@@ -214,20 +214,21 @@ void prcsGetGroupMemberInfo(const char *payload) {
 }
 
 void prcsGetGroupMemberList(const char *payload) {
-	int64_t group;
-	sscanf_s(payload, "%I64d", &group);
+	CQ_addLog(appAuthCode, CQLOG_WARNING, "NotImplementedException", "The function is under development.");
+	//int64_t group;
+	//sscanf_s(payload, "%I64d", &group);
 
-	char* encoded_info = new char[FRAME_PAYLOAD_SIZE];
+	//char* encoded_info = new char[FRAME_PAYLOAD_SIZE];
 
-	auto list = CQ_getGroupMemberList(appAuthCode, group);
-	Base64encode(encoded_info, list, strlen(list));
+	//auto list = CQ_getGroupMemberList(appAuthCode, group);
+	//Base64encode(encoded_info, list, strlen(list));
 
-	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberList %s", encoded_info);
-	client->send(buffer, strlen(buffer));
+	//char* buffer = new char[FRAME_SIZE];
+	//sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberList %s", encoded_info);
+	//client->send(buffer, strlen(buffer));
 
-	delete[] encoded_info;
-	delete[] buffer;
+	//delete[] encoded_info;
+	//delete[] buffer;
 }
 
 void prcsGetStrangerInfo(const char *payload) {

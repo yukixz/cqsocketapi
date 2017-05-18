@@ -116,13 +116,16 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
 
-	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
+	char* encoded_Anonymous = new char[FRAME_PAYLOAD_SIZE / 2];
+	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE / 2];
+	Base64encode(encoded_Anonymous, fromAnonymous, strlen(fromAnonymous));
 	Base64encode(encoded_msg, msg, strlen(msg));
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMessage %I32d %I64d %I64d %s", subType, fromGroup, fromQQ, encoded_msg);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMessage %I32d %I64d %I64d %s %s", subType, fromGroup, fromQQ, encoded_Anonymous, encoded_msg);
 	client->send(buffer, strlen(buffer));
 
+	delete[] encoded_Anonymous;
 	delete[] encoded_msg;
 	delete[] buffer;
 
@@ -230,7 +233,7 @@ CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime
 * Type=302 «Î«Û-»∫ÃÌº”
 */
 CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *msg, const char *responseFlag) {
-	
+
 	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE / 2];
 	Base64encode(encoded_msg, msg, strlen(msg));
 

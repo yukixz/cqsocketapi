@@ -61,4 +61,4 @@ CQAPI(int64_t) CQ_getLoginQQ(int32_t AuthCode);
 CQAPI(const char *) CQ_getLoginNick(int32_t AuthCode);
 CQAPI(const char *) CQ_getAppDirectory(int32_t AuthCode);
 CQAPI(int32_t) CQ_setFatal(int32_t AuthCode, const char *errorinfo);
-CQAPI(const char *) CQ_getGroupMemberList(int32_t AuthCode, int64_t groupid);
+//CQAPI(const char *) CQ_getGroupMemberList(int32_t AuthCode, int64_t groupid);
