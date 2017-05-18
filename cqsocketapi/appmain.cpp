@@ -216,7 +216,7 @@ CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime
 	Base64encode(encoded_flag, responseFlag, strlen(responseFlag));
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "AddFriend %I32d %I64d %s %s", subType, fromQQ, encoded_msg, encoded_flag);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "RequestAddFriend %I32d %I64d %s %s", subType, fromQQ, encoded_msg, encoded_flag);
 	client->send(buffer, strlen(buffer));
 
 	delete[] encoded_msg;
@@ -238,7 +238,7 @@ CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime,
 	Base64encode(encoded_flag, responseFlag, strlen(responseFlag));
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "AddGroup %I32d %I64d %I64d %s %s", subType, fromGroup, fromQQ, encoded_msg, encoded_flag);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "RequestAddGroup %I32d %I64d %I64d %s %s", subType, fromGroup, fromQQ, encoded_msg, encoded_flag);
 	client->send(buffer, strlen(buffer));
 
 	delete[] encoded_msg;

@@ -206,8 +206,24 @@ void prcsGetGroupMemberInfo(const char *payload) {
 	Base64encode(encoded_info, info, strlen(info));
 
 	char* buffer = new char[FRAME_SIZE];
-	//sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberInfo %I64d %I64d %s", group, qq, encoded_info);
 	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberInfo %s", encoded_info);
+	client->send(buffer, strlen(buffer));
+
+	delete[] encoded_info;
+	delete[] buffer;
+}
+
+void prcsGetGroupMemberList(const char *payload) {
+	int64_t group;
+	sscanf_s(payload, "%I64d", &group);
+
+	char* encoded_info = new char[FRAME_PAYLOAD_SIZE];
+
+	auto list = CQ_getGroupMemberList(appAuthCode, group);
+	Base64encode(encoded_info, list, strlen(list));
+
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberList %s", encoded_info);
 	client->send(buffer, strlen(buffer));
 
 	delete[] encoded_info;
@@ -225,7 +241,6 @@ void prcsGetStrangerInfo(const char *payload) {
 	Base64encode(encoded_info, info, strlen(info));
 
 	char* buffer = new char[FRAME_SIZE];
-	//sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvStrangerInfo %I64d %s", qq, encoded_info);
 	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvStrangerInfo %s", encoded_info);
 	client->send(buffer, strlen(buffer));
 
@@ -423,6 +438,11 @@ void APIServer::run() {
 
 			if (strcmp(prefix, "GroupMemberInfo") == 0) {
 				prcsGetGroupMemberInfo(payload);
+				continue;
+			}
+
+			if (strcmp(prefix, "GroupMemberList") == 0) {
+				prcsGetGroupMemberList(payload);
 				continue;
 			}
 
