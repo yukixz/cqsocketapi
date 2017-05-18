@@ -3,9 +3,9 @@
     "apiver":9,
     "appid":"org.dazzyd.cqsocketapi",
     "name":"CoolQ Socket API",
-    "version":"2.2.0",
+    "version":"2.4.0",
     "version_id":1,
-    "author":"Dazzy Ding",
+    "author":"Dazzy Ding, Paspy",
     "description":"CoolQ Scoket API",
     "event":[
         {
@@ -103,27 +103,27 @@
     "status":[
 
     ],
-  "auth": [
-    20,
-    30,
-    101,
-    103,
-    106,
-    110,
-    120,
-    121,
-    122,
-    123,
-    124,
-    125,
-    126,
-    127,
-    128,
-    130,
-    131,
-    140,
-    150,
-    151,
-    160
-  ]
+    "auth":[
+        20,
+        30,
+        101,
+        103,
+        106,
+        110,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        130,
+        131,
+        140,
+        150,
+        151,
+        160
+    ]
 }
