@@ -58,12 +58,12 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 			CreateDirectory(configFolder.data(), NULL);
 		}
 		CloseHandle(CreateFile(configFile.data(), GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
-		CQ_addLog(appAuthCode, CQLOG_INFO, "æç¤ºä¿¡æ¯", "é…ç½®æ–‡ä»¶ä¸å­˜åœ¨ï¼Œå°†ä»¥é»˜è®¤å€¼è‡ªåŠ¨ç”Ÿæˆ");
+		CQ_addLog(appAuthCode, CQLOG_INFO, "ÌáÊ¾ĞÅÏ¢", "ÅäÖÃÎÄ¼ş²»´æÔÚ£¬½«ÒÔÄ¬ÈÏÖµ×Ô¶¯Éú³É");
 	}
 
 	stringstream ss;  string value; int valueInt = -1;
 
-	#define tryGetInt(id)\
+#define tryGetInt(id)\
 	valueInt = GetPrivateProfileInt("Server", #id, -1, configFile.data());\
 	if (valueInt != -1) {id = valueInt;} else {\
 		ss << id; ss >> value;\
@@ -83,7 +83,7 @@ CQEVENT(int32_t, __eventEnable, 0)() {
 
 	unsigned tid;
 	HANDLE thd;
-	thd = (HANDLE) _beginthreadex(NULL, 0, startServer, NULL, 0, &tid);
+	thd = (HANDLE)_beginthreadex(NULL, 0, startServer, NULL, 0, &tid);
 
 	return 0;
 }
@@ -94,7 +94,7 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 }
 
 /*
-* Type=21 ç§èŠæ¶ˆæ¯
+* Type=21 Ë½ÁÄÏûÏ¢
 */
 CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, int32_t font) {
 
@@ -102,115 +102,163 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 	Base64encode(encoded_msg, msg, strlen(msg));
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "PrivateMessage %I64d %s", fromQQ, encoded_msg);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "PrivateMessage %I32d %I64d %s", subType, fromQQ, encoded_msg);
 	client->send(buffer, strlen(buffer));
+
+	delete[] encoded_msg;
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
 
 /*
-* Type=2 ç¾¤æ¶ˆæ¯
+* Type=2 ÈºÏûÏ¢
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
-	
+
 	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
 	Base64encode(encoded_msg, msg, strlen(msg));
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMessage %I64d %I64d %s", fromGroup, fromQQ, encoded_msg);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMessage %I32d %I64d %I64d %s", subType, fromGroup, fromQQ, encoded_msg);
 	client->send(buffer, strlen(buffer));
+
+	delete[] encoded_msg;
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
 
 /*
-* Type=4 è®¨è®ºç»„æ¶ˆæ¯
+* Type=4 ÌÖÂÛ×éÏûÏ¢
 */
 CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t sendTime, int64_t fromDiscuss, int64_t fromQQ, const char *msg, int32_t font) {
-	
+
 	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE];
 	Base64encode(encoded_msg, msg, strlen(msg));
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "DiscussMessage %I64d %I64d %s", fromDiscuss, fromQQ, encoded_msg);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "DiscussMessage %I32d %I64d %I64d %s", subType, fromDiscuss, fromQQ, encoded_msg);
 	client->send(buffer, strlen(buffer));
+
+	delete[] encoded_msg;
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
 
 /*
-* Type=101 ç¾¤äº‹ä»¶-ç®¡ç†å‘˜å˜åŠ¨
+* Type=101 ÈºÊÂ¼ş-¹ÜÀíÔ±±ä¶¯
 */
 CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t beingOperateQQ) {
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupAdmin %I64d %I32d %I64d", fromGroup, subType, beingOperateQQ);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupAdmin %I32d %I64d %I64d", subType, fromGroup, beingOperateQQ);
 	client->send(buffer, strlen(buffer));
+
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
 
 /*
-* Type=102 ç¾¤äº‹ä»¶-ç¾¤æˆå‘˜å‡å°‘
+* Type=102 ÈºÊÂ¼ş-Èº³ÉÔ±¼õÉÙ
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMemberDecrease %I64d %I64d %I64d", fromGroup, fromQQ, beingOperateQQ);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMemberDecrease %I32d %I64d %I64d %I64d", subType, fromGroup, fromQQ, beingOperateQQ);
 	client->send(buffer, strlen(buffer));
+
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
 
 /*
-* Type=103 ç¾¤äº‹ä»¶-ç¾¤æˆå‘˜å¢åŠ 
+* Type=103 ÈºÊÂ¼ş-Èº³ÉÔ±Ôö¼Ó
 */
 CQEVENT(int32_t, __eventSystem_GroupMemberIncrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMemberIncrease %I64d %I64d %I64d", fromGroup, fromQQ, beingOperateQQ);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupMemberIncrease %I32d %I64d %I64d %I64d", subType, fromGroup, fromQQ, beingOperateQQ);
 	client->send(buffer, strlen(buffer));
+
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
 
 
 /*
-* Type=201 å¥½å‹äº‹ä»¶-å¥½å‹å·²æ·»åŠ 
+* Type=201 ºÃÓÑÊÂ¼ş-ºÃÓÑÒÑÌí¼Ó
 */
 CQEVENT(int32_t, __eventFriend_Add, 16)(int32_t subType, int32_t sendTime, int64_t fromQQ) {
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "FriendAdded %I64d", fromQQ);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "FriendAdded %I32d %I64d", subType, fromQQ);
 	client->send(buffer, strlen(buffer));
+
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
 
 /*
-* Type=301 è¯·æ±‚-å¥½å‹æ·»åŠ 
+* Type=301 ÇëÇó-ºÃÓÑÌí¼Ó
 */
 CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, const char *responseFlag) {
 
+	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE / 2];
+	Base64encode(encoded_msg, msg, strlen(msg));
+
+	char* encoded_flag = new char[FRAME_PAYLOAD_SIZE / 2];
+	Base64encode(encoded_flag, responseFlag, strlen(responseFlag));
+
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "AddFriend %I32d %I64d %s %s", subType, fromQQ, encoded_msg, encoded_flag);
+	client->send(buffer, strlen(buffer));
+
+	delete[] encoded_msg;
+	delete[] encoded_flag;
+	delete[] buffer;
+
 	return EVENT_IGNORE;
 }
 
 /*
-* Type=302 è¯·æ±‚-ç¾¤æ·»åŠ 
+* Type=302 ÇëÇó-ÈºÌí¼Ó
 */
 CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *msg, const char *responseFlag) {
+	
+	char* encoded_msg = new char[FRAME_PAYLOAD_SIZE / 2];
+	Base64encode(encoded_msg, msg, strlen(msg));
+
+	char* encoded_flag = new char[FRAME_PAYLOAD_SIZE / 2];
+	Base64encode(encoded_flag, responseFlag, strlen(responseFlag));
+
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "AddGroup %I32d %I64d %I64d %s %s", subType, fromGroup, fromQQ, encoded_msg, encoded_flag);
+	client->send(buffer, strlen(buffer));
+
+	delete[] encoded_msg;
+	delete[] encoded_flag;
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
 
 CQEVENT(int32_t, _eventGroupUpload, 28)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *file) {
-	
-	char* encoded_filename = new char[FRAME_PAYLOAD_SIZE];
-	Base64encode(encoded_filename, file, strlen(file));
+
+	char* encoded_file = new char[FRAME_PAYLOAD_SIZE];
+	Base64encode(encoded_file, file, strlen(file));
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupUpload %I64d %I64d %s", fromGroup, fromQQ, encoded_filename);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "GroupUpload %I32d %I64d %I64d %s", subType, fromGroup, fromQQ, encoded_file);
 	client->send(buffer, strlen(buffer));
+
+	delete[] encoded_file;
+	delete[] buffer;
 
 	return EVENT_IGNORE;
 }
