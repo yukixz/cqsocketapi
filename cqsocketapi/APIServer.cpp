@@ -7,6 +7,8 @@
 #include "APIClient.h"
 #include "APIServer.h"
 
+#include <string>
+#include <fstream>
 extern APIClient *client;
 extern int appAuthCode;
 
@@ -74,9 +76,10 @@ void prcsSendDiscussMessage(const char *payload) {
 
 void prcsSendLike(const char *payload) {
 	int64_t qq;
-	sscanf_s(payload, "%I64d", &qq);
+	int32_t times;
+	sscanf_s(payload, "%I64d %I32d", &qq, &times);
 
-	CQ_sendLike(appAuthCode, qq);
+	CQ_sendLikeV2(appAuthCode, qq, times);
 }
 
 void prcsSetGroupKick(const char *payload) {
@@ -180,7 +183,10 @@ void prcsFriendAddRequest(const char *payload) {
 	char* responseflag = new char[FRAME_PAYLOAD_SIZE / 2];
 	char* remark = new char[FRAME_PAYLOAD_SIZE / 2];
 
-	sscanf_s(payload, "%[^\n] %I32d %[^\n]", responseflag, sizeof(char) * FRAME_PAYLOAD_SIZE / 2, &responseoperation, remark, sizeof(char) * FRAME_PAYLOAD_SIZE / 2);
+	sscanf_s(payload, "%[^\n] %I32d %[^\n]",
+		responseflag, sizeof(char) * FRAME_PAYLOAD_SIZE / 2,
+		&responseoperation,
+		remark, sizeof(char) * FRAME_PAYLOAD_SIZE / 2);
 
 	char* decodedResponseflag = new char[FRAME_PAYLOAD_SIZE / 2];
 	char* decodedRemark = new char[FRAME_PAYLOAD_SIZE / 2];
@@ -225,35 +231,41 @@ void prcsGetGroupMemberInfo(const char *payload) {
 	int64_t group, qq;
 	sscanf_s(payload, "%I64d %I64d %I32d", &group, &qq, &nocache);
 
-	char* encoded_info = new char[FRAME_PAYLOAD_SIZE];
+	//char* encoded_info = new char[FRAME_PAYLOAD_SIZE];
 
 	auto info = CQ_getGroupMemberInfoV2(appAuthCode, group, qq, nocache);
-	Base64encode(encoded_info, info, strlen(info));
+	//Base64encode(encoded_info, info, strlen(info));
 
 	char* buffer = new char[FRAME_SIZE];
-	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberInfo %s", encoded_info);
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberInfo %s", info);
 	client->send(buffer, strlen(buffer));
 
-	delete[] encoded_info;
+	//delete[] encoded_info;
 	delete[] buffer;
 }
 
 void prcsGetGroupMemberList(const char *payload) {
-	CQ_addLog(appAuthCode, CQLOG_WARNING, "NotImplementedException", "The function is under development.");
-	//int64_t group;
-	//sscanf_s(payload, "%I64d", &group);
+	int64_t group;
+	sscanf_s(payload, "%I64d", &group);
+	char* encoded_path = new char[FRAME_PAYLOAD_SIZE];
+	std::string appPath(CQ_getAppDirectory(appAuthCode));
+	std::string cachePath = appPath + "GroupListCache\\";
 
-	//char* encoded_info = new char[FRAME_PAYLOAD_SIZE];
+	std::string filename = std::string(cachePath) + std::to_string(group) + ".g";
+	CreateDirectory(cachePath.c_str(), nullptr);
+	std::ofstream fout(filename.c_str(), std::ofstream::out);
+	auto list = CQ_getGroupMemberList(appAuthCode, group);
+	if (fout.is_open()) {
+		fout << std::string(list);
+		fout.close();
+	}
+	Base64encode(encoded_path, filename.c_str(), strlen(filename.c_str()));
+	char* buffer = new char[FRAME_SIZE];
+	sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberList %s", encoded_path);
+	client->send(buffer, strlen(buffer));
 
-	//auto list = CQ_getGroupMemberList(appAuthCode, group);
-	//Base64encode(encoded_info, list, strlen(list));
-
-	//char* buffer = new char[FRAME_SIZE];
-	//sprintf_s(buffer, FRAME_SIZE * sizeof(char), "SrvGroupMemberList %s", encoded_info);
-	//client->send(buffer, strlen(buffer));
-
-	//delete[] encoded_info;
-	//delete[] buffer;
+	delete[] encoded_path;
+	delete[] buffer;
 }
 
 void prcsGetStrangerInfo(const char *payload) {
@@ -338,11 +350,9 @@ void prcsGetAppDirectory() {
 	delete[] buffer;
 }
 
-
 //////////////////////////////////////////////////////////////////////////
 //	Not Implemented
 //////////////////////////////////////////////////////////////////////////
-//	CQ_setGroupAddRequestV2
 //	CQ_setFatal
 //	CQ_addLog
 
