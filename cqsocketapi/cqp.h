@@ -40,6 +40,7 @@ CQAPI(int32_t) CQ_sendPrivateMsg(int32_t AuthCode, int64_t QQID, const char *msg
 CQAPI(int32_t) CQ_sendGroupMsg(int32_t AuthCode, int64_t groupid, const char *msg);
 CQAPI(int32_t) CQ_sendDiscussMsg(int32_t AuthCode, int64_t discussid, const char *msg);
 CQAPI(int32_t) CQ_sendLike(int32_t AuthCode, int64_t QQID);
+CQAPI(int32_t) CQ_sendLikeV2(int32_t AuthCode, int64_t QQID, int32_t times);
 CQAPI(int32_t) CQ_setGroupKick(int32_t AuthCode, int64_t groupid, int64_t QQID, CQBOOL rejectaddrequest);
 CQAPI(int32_t) CQ_setGroupBan(int32_t AuthCode, int64_t groupid, int64_t QQID, int64_t duration);
 CQAPI(int32_t) CQ_setGroupAdmin(int32_t AuthCode, int64_t groupid, int64_t QQID, CQBOOL setadmin);
@@ -61,3 +62,4 @@ CQAPI(int64_t) CQ_getLoginQQ(int32_t AuthCode);
 CQAPI(const char *) CQ_getLoginNick(int32_t AuthCode);
 CQAPI(const char *) CQ_getAppDirectory(int32_t AuthCode);
 CQAPI(int32_t) CQ_setFatal(int32_t AuthCode, const char *errorinfo);
+CQAPI(const char *) CQ_getGroupMemberList(int32_t AuthCode, int64_t groupid);
